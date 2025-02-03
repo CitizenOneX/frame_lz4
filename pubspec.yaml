@@ -1,6 +1,6 @@
 name: frame_lz4
 description: "lz4 codec subset precompiled for Brilliant Labs Frame"
-version: 0.1.0
+version: 1.0.0
 repository: https://github.com/CitizenOneX/frame_lz4
 
 environment:

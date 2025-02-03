@@ -1,4 +1,5 @@
 import 'dart:ffi' as ffi;
+import 'dart:typed_data';
 import 'dart:io' show Platform;
 import 'package:ffi/ffi.dart';
 
@@ -63,12 +64,11 @@ class FrameLZ4 {
     }
   }
 
-  List<int> compress(List<int> source) {
+  Uint8List compress(Uint8List source) {
     final sourcePointer = calloc<ffi.Uint8>(source.length);
     final sourceList = sourcePointer.asTypedList(source.length);
     sourceList.setAll(0, source);
 
-    // LZ4 compression bound is source size + 0.4% + 8 bytes
     final maxDestSize = (source.length * 1.004).ceil() + 8;
     final destPointer = calloc<ffi.Uint8>(maxDestSize);
 
@@ -84,14 +84,14 @@ class FrameLZ4 {
         throw LZ4Exception('Compression failed');
       }
 
-      return destPointer.asTypedList(compressedSize).toList();
+      return Uint8List.fromList(destPointer.asTypedList(compressedSize));
     } finally {
       calloc.free(sourcePointer);
       calloc.free(destPointer);
     }
   }
 
-  List<int> decompress(List<int> compressed, int originalSize) {
+  Uint8List decompress(Uint8List compressed, int originalSize) {
     final sourcePointer = calloc<ffi.Uint8>(compressed.length);
     final sourceList = sourcePointer.asTypedList(compressed.length);
     sourceList.setAll(0, compressed);
@@ -110,7 +110,7 @@ class FrameLZ4 {
         throw LZ4Exception('Decompression failed');
       }
 
-      return destPointer.asTypedList(decompressedSize).toList();
+      return Uint8List.fromList(destPointer.asTypedList(decompressedSize));
     } finally {
       calloc.free(sourcePointer);
       calloc.free(destPointer);
